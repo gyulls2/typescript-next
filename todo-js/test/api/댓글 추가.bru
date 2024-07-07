@@ -1,0 +1,18 @@
+meta {
+  name: 댓글 추가
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3300/comments
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "댓글",
+    "postId": "2"
+  }
+}

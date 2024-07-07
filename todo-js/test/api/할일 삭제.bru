@@ -1,0 +1,15 @@
+meta {
+  name: 할일 삭제
+  type: http
+  seq: 1
+}
+
+delete {
+  url: http://localhost:3300/todos/:id
+  body: json
+  auth: none
+}
+
+params:path {
+  id: 137b
+}

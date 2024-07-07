@@ -1,0 +1,25 @@
+import TodoInput from "./TodoInput";
+import TodoList from "./TodoList";
+import useFetch from "@hooks/useFetch";
+import { TodoItemData } from "#types/todo";
+
+
+function Todo() {
+  // useFetch는 공용 훅이기 때문에 사용하는 곳에서 타입 지정
+  const { loading, data, error, refetch } = useFetch<TodoItemData>("/todos");
+
+  if (loading) return <p>로딩중...</p>;
+  if (error) return <p>{error.message}</p>;
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-4xl font-bold text-center mb-8">Todo App</h1>
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <TodoInput refetch={refetch} />
+        <TodoList data={data} refetch={refetch} />
+      </div>
+    </div>
+  );
+}
+
+export default Todo;
