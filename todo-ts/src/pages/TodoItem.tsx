@@ -29,6 +29,7 @@ function TodoItem({ item, refetch }: Props) {
       });
       refetch();
     } catch (err) {
+      // err.message에 접근하려면 타입 가드로 체크
       if (err instanceof Error) {
         alert(`에러 ${err.message}`);
       }

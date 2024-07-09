@@ -1,12 +1,12 @@
 import TodoInput from "./TodoInput";
 import TodoList from "./TodoList";
 import useFetch from "@hooks/useFetch";
-import { TodoItemData } from "#types/todo";
+import { TodoListResponse } from "#types/todo";
 
 
 function Todo() {
   // useFetch는 공용 훅이기 때문에 사용하는 곳에서 타입 지정
-  const { loading, data, error, refetch } = useFetch<TodoItemData>("/todos");
+  const { loading, data, error, refetch } = useFetch<TodoListResponse>("/todos");
 
   if (loading) return <p>로딩중...</p>;
   if (error) return <p>{error.message}</p>;
