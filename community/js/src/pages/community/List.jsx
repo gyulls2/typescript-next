@@ -1,26 +1,40 @@
 import Button from "@components/Button";
 import Pagination from "@components/Pagination";
 import Search from "@components/Search";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ListItem from "./ListItem";
 import useFetch from "@hooks/useFetch";
+import { useEffect } from "react";
 
 export default function List() {
   const navigate = useNavigate();
+  const param = useParams().type;
 
-  const { loading, data, error, refetch } = useFetch("/posts/?type=gyull");
+  const listTitle = {
+    gyull: "정보 공유",
+    free: "자유게시판",
+    qna: "질문게시판",
+  }
+
+  const { loading, data, error, refetch } = useFetch(
+    `/posts/?type=${param}`
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [param]);
 
   return (
     <main className="min-w-80 p-10">
       <div className="text-center py-4">
         <h2 className="pb-4 text-2xl font-bold text-gray-700 dark:text-gray-200">
-          정보 공유
+          {listTitle[param]}
         </h2>
       </div>
       <div className="flex justify-end mr-4">
         {/* 검색 */}
         <Search />
-        <Button onClick={() => navigate("/info/new")}>글작성</Button>
+        <Button onClick={() => navigate(`/${param}/new`)}>글작성</Button>
       </div>
       <section className="pt-10">
         <table className="border-collapse w-full table-fixed">
@@ -64,8 +78,12 @@ export default function List() {
           */}
 
             {/* 본문 출력 */}
-            {data?.item.map((item) => (
-              <ListItem item={item} key={item._id} />
+            {data?.item.map((item, idx) => (
+              <ListItem
+                item={item}
+                key={item._id}
+                idx={data.item.length - idx}
+              />
             ))}
           </tbody>
         </table>

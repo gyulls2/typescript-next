@@ -1,24 +1,28 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function ListItem({ item }) {
+export default function ListItem({ item , idx}) {
+  const { user, _id, title, repliesCount, createdAt, views } = item;
+  const { name, profile } = user;
+  const param = useParams().type;
+
   const navigate = useNavigate();
 
   return (
     <tr className="border-b border-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-300 ease-in-out">
-      <td className="p-2 text-center">0</td>
+      <td className="p-2 text-center">{idx}</td>
       <td
         className="p-2 truncate indent-4 cursor-pointer"
-        onClick={() => navigate(`/info/${item._id}`)}
+        onClick={() => navigate(`/${param}/${_id}`)}
       >
-        {item.title}
+        {title}
       </td>
-      <td className="p-2 text-center truncate">{item.user.name}</td>
-      <td className="p-2 text-center hidden sm:table-cell">{item.views}</td>
+      <td className="p-2 text-center truncate">{name}</td>
+      <td className="p-2 text-center hidden sm:table-cell">{views}</td>
       <td className="p-2 text-center hidden sm:table-cell">
-        {item.repliesCount}
+        {repliesCount}
       </td>
       <td className="p-2 truncate text-center hidden sm:table-cell">
-        {item.createdAt}
+        {createdAt}
       </td>
     </tr>
   );

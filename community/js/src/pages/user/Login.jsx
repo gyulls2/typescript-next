@@ -1,25 +1,47 @@
 import Submit from "@components/Submit";
-import useFetch from "@hooks/useFetch";
 import useMutation from "@hooks/useMutation";
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useRecoilState } from "recoil";
+import { loginAtom } from "@recoil/user/atoms";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const [user, setUser] = useRecoilState(loginAtom);
+
   const { send } = useMutation("/users/login", {
     method: "POST",
   });
 
-  // const { loading, data, error, refetch } = useFetch('/users/login');
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     try {
-      await send({
-        body: JSON.stringify({ email, password }),
+      const loginData = await send({
+        body: JSON.stringify(data),
       });
+
+      // 로컬스토리지 토큰 저장
+      const token = {
+        accessToken: loginData?.item.token.accessToken,
+        refreshToken: loginData?.item.token.refreshToken,
+      };
+      localStorage.setItem("token", JSON.stringify(token));
+
+      // 리코일에 유저 정보 저장
+      setUser({
+        isLoggedIn: true,
+        user: {
+          _id: loginData?.item._id,
+          name: loginData?.item.name,
+          profileImage: loginData?.item.profileImage.path,
+        },
+      });
+
+      history.back();
     } catch (error) {
       alert(error.message);
     }
@@ -34,12 +56,7 @@ export default function Login() {
           </h2>
         </div>
 
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            history.back();
-          }}
-        >
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label
               className="block text-gray-700 dark:text-gray-200 mb-2"
@@ -52,9 +69,8 @@ export default function Login() {
               type="email"
               placeholder="이메일을 입력하세요"
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-orange-400 dark:bg-gray-700"
-              value={email}
               name="email"
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email", { required: true })}
             />
             {/* 입력값 검증 에러 출력 */}
             {/* <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">에러 메세지</p> */}
@@ -71,9 +87,8 @@ export default function Login() {
               type="password"
               placeholder="비밀번호를 입력하세요"
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-orange-400 dark:bg-gray-700"
-              value={password}
               name="password"
-              onChange={(e) => setPassword(e.target.value)}
+              {...register("password", { required: true })}
             />
             {/* 입력값 검증 에러 출력 */}
             {/* <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">에러 메세지</p> */}
@@ -85,7 +100,7 @@ export default function Login() {
             </Link>
           </div>
           <div className="mt-10 flex justify-center items-center">
-            <Submit onSubmit={(e) => handleLogin(e)}>로그인</Submit>
+            <Submit>로그인</Submit>
             <Link
               to="/user/signup"
               className="ml-8 text-gray-800 hover:underline"

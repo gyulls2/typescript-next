@@ -25,7 +25,7 @@ export default function Community() {
           <div className="bg-white p-6 rounded shadow dark:bg-gray-800">
             <h3 className="text-xl font-bold mb-2">정보 공유</h3>
             <p className="mb-4">다양한 정보와 지식을 공유하세요.</p>
-            <Link to="/info" className="text-orange-500 hover:underline">
+            <Link to="/gyull" className="text-orange-500 hover:underline">
               바로가기
             </Link>
           </div>
