@@ -11,7 +11,7 @@ const useAuthMutation = (url, options = {}) => {
     options = {
       headers: {
         "Content-Type": "application/json",
-        ...(token && { "Authorization": `Bearer ${token.accessToken}` }),
+        ...(token && { Authorization: `Bearer ${token.accessToken}` }),
       },
       ...options,
       ...addOptions,
@@ -20,7 +20,9 @@ const useAuthMutation = (url, options = {}) => {
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        throw new Error(`2xx 이외의 응답: ${response.status}`);
+        const error = new Error(`2xx 이외의 응답: ${response.status}`);
+        error.status = response.status
+        throw error; 
       }
       const result = await response.json();
       console.log(result);

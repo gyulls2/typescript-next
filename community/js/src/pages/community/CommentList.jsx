@@ -7,6 +7,9 @@ export default function CommentList({ postId }) {
     `/posts/${postId}/replies`
   );
 
+  if(loading) return <p>로딩중...</p>;
+  if(error) return <p>{ error.message }</p>;
+
   return (
     <section className="mb-8">
       <h4 className="mt-8 mb-4 ml-2">댓글 {data?.item.length}개</h4>

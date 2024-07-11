@@ -1,9 +1,42 @@
+import { useEffect, useState } from "react";
+
+const useDarkMode = () => {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== "undefined" && localStorage.theme) {
+      return localStorage.theme === "dark";
+    }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    const className = "dark";
+    const element = document.documentElement;
+
+    if (isDarkMode) {
+      element.classList.add(className);
+      localStorage.setItem("theme", "dark");
+    } else {
+      element.classList.remove(className);
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+  };
+
+  return [isDarkMode, toggleDarkMode];
+};
+
 export default function Theme() {
+  const [isDarkMode, toggleDarkMode] = useDarkMode();
+
   return (
     <button
       type="button"
       data-toggle-dark="dark"
       className="ml-4 flex items-center w-8 h-8 justify-center text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg toggle-dark-state-example hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500 dark:bg-gray-800 focus:outline-none dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+      onClick={toggleDarkMode}
     >
       <svg
         data-toggle-icon="moon"

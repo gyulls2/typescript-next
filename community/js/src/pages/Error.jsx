@@ -1,7 +1,7 @@
 import Footer from "@components/layout/Footer";
 import Header from "@components/layout/Header";
 
-export default function Error() {
+export default function Error(error) {
   return (
     <div className="flex flex-col min-h-screen dark:bg-gray-700 dark:text-gray-200 transition-color duration-500 ease-in-out">
       <Header />
@@ -12,6 +12,7 @@ export default function Error() {
         <p className="text-center">
           이 오류는 더 나은 서비스를 위한 첫걸음이에요. 조금만 기다려 주세요!
         </p>
+        {error && error.message}
         <button className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600">
           ⚙️ 문제 해결하기
         </button>

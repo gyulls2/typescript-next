@@ -30,6 +30,8 @@ export default function Detail() {
     }
   };
 
+  if(loading) return <p>로딩중...</p>;
+  if(error) return <p>{ error.message }</p>;
 
   return (
     <main className="container mx-auto mt-4 px-4">

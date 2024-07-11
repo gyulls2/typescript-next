@@ -23,6 +23,9 @@ export default function CommentNew({ postId, refetch }) {
       refetch();
       reset();
     } catch (error) {
+      if (error.status == 401) {
+        alert("로그인 후 사용하세요.");
+      }
       console.error(error);
     }
   };

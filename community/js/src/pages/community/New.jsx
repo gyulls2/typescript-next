@@ -2,10 +2,11 @@ import Button from "@components/Button";
 import Submit from "@components/Submit";
 import useAuthMutation from "@hooks/useAuthMutation";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function New() {
   const param = useParams().type;
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -18,11 +19,14 @@ export default function New() {
 
   const onSubmit = async (data) => {
     try {
-      await send({
+      const response = await send({
         body: JSON.stringify({ ...data, type: param }),
       });
-      history.back();
+      navigate(`/${param}/${response.item._id}`);
     } catch (error) {
+      if (error.status == 401) {
+        alert("로그인 후 사용하세요.");
+      }
       console.error(error);
     }
   };

@@ -1,5 +1,6 @@
 import Button from "@components/Button";
 import Submit from "@components/Submit";
+import { ErrorMessage } from "@hookform/error-message";
 import useMutation from "@hooks/useMutation";
 import usePostFiles from "@hooks/usePostFiles";
 import { useForm } from "react-hook-form";
@@ -10,7 +11,6 @@ export default function Signup() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-
 
   const { fileSend } = usePostFiles("/files", {
     method: "POST",
@@ -63,10 +63,18 @@ export default function Signup() {
               placeholder="이름을 입력하세요"
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-orange-400 dark:bg-gray-700"
               name="name"
-              {...register("name", { required: true })}
+              {...register("name", { required: "이름을 입력하세요." })}
             />
             {/* 입력값 검증 에러 출력 */}
-            {/* <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">에러 메세지</p> */}
+            <ErrorMessage
+              errors={errors}
+              name="name"
+              render={({ message }) => (
+                <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">
+                  ⚠ {message}
+                </p>
+              )}
+            />
           </div>
           <div className="mb-4">
             <label
@@ -81,10 +89,25 @@ export default function Signup() {
               placeholder="이메일을 입력하세요"
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-orange-400 dark:bg-gray-700"
               name="email"
-              {...register("email", { required: true })}
+              {...register("email", {
+                required: "이메일을 입력하세요.",
+                pattern: {
+                  value:
+                    /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
+                  message: "형식에 맞지 않는 이메일입니다.",
+                },
+              })}
             />
             {/* 입력값 검증 에러 출력 */}
-            {/* <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">에러 메세지</p> */}
+            <ErrorMessage
+              errors={errors}
+              name="email"
+              render={({ message }) => (
+                <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">
+                  ⚠ {message}
+                </p>
+              )}
+            />
           </div>
           <div className="mb-4">
             <label
@@ -99,10 +122,24 @@ export default function Signup() {
               placeholder="비밀번호를 입력하세요"
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-orange-400 dark:bg-gray-700"
               name="password"
-              {...register("password", { required: true })}
+              {...register("password", {
+                required: "비밀번호를 입력하세요.",
+                minLength: {
+                  value: 8,
+                  message: "비밀번호를 8자 이상 입력하세요.",
+                },
+              })}
             />
             {/* 입력값 검증 에러 출력 */}
-            {/* <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">에러 메세지</p> */}
+            <ErrorMessage
+              errors={errors}
+              name="password"
+              render={({ message }) => (
+                <p className="ml-2 mt-1 text-sm text-red-500 dark:text-red-400">
+                  ⚠ {message}
+                </p>
+              )}
+            />
           </div>
 
           <div className="mb-4">
@@ -120,7 +157,6 @@ export default function Signup() {
               className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700"
               name="profileImage"
               {...register("profileImage")}
-              // onChange={(e)=>console.log(e.target.files)}
             />
           </div>
 

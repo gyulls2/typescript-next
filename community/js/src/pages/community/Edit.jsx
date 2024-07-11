@@ -9,7 +9,7 @@ export default function Edit() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty, dirtyFields },
   } = useForm();
 
   const postId = useParams()._id;
@@ -21,14 +21,25 @@ export default function Edit() {
     refetch,
   } = useFetch(`/posts/${postId}`);
 
+  console.log(prevData)
+
   const { send } = useAuthMutation(`/posts/${postId}`, {
     method: "PATCH",
   });
 
   const onSubmit = async (data) => {
+    if(!isDirty) {
+      history.back();
+      return;
+    }
+    const updatedData = Object.keys(dirtyFields).reduce((acc, field) => {
+      acc[field] = data[field];
+      return acc;
+    }, {});
+
     try {
       await send({
-        body: JSON.stringify({ ...prevData, ...data }),
+        body: JSON.stringify({ ...prevData.item, ...updatedData }),
       });
       history.back();
     } catch (error) {

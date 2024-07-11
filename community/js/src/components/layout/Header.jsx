@@ -49,12 +49,15 @@ export default function Header() {
 
         <div className="w-1/2 order-1 flex justify-end items-center md:order-2 md:w-auto">
           {/* 로그인 전, 후 UI 변경 */}
-          {/* TODO: 프로필 이미지 변경 */}
           {loginState.isLoggedIn ? (
             <p className="flex items-center">
               <img
                 className="w-8 rounded-full mr-2"
-                src="https://api.fesp.shop/files/00-sample/user-muzi.webp"
+                src={
+                  loginState.user.profileImage
+                    ? `https://api.fesp.shop${loginState.user.profileImage}`
+                    : "https://api.fesp.shop/files/00-sample/user-muzi.webp"
+                }
               />
               {loginState.user.name}님 :)
               <Button size="md" bgColor="gray" onClick={handleLogout}>
