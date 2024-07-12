@@ -4,7 +4,7 @@ import { loginAtom } from "@recoil/user/atoms";
 import { Link, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 
-export default function Header() {
+const Header = () => {
   const navigate = useNavigate();
 
   const [loginState, setLoginState] = useRecoilState(loginAtom);
@@ -85,4 +85,6 @@ export default function Header() {
       </nav>
     </header>
   );
-}
+};
+
+export default Header;

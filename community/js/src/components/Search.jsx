@@ -1,14 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import Submit from "./Submit";
 import { useForm } from "react-hook-form";
 
-export default function Search({ setKeyword }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm();
+const Search = ({ setKeyword }) => {
+  const { register, handleSubmit, reset } = useForm();
 
   const onSubmit = (data) => {
     if (data.keyword) {
@@ -30,4 +24,5 @@ export default function Search({ setKeyword }) {
       <Submit>검색</Submit>
     </form>
   );
-}
+};
+export default Search;

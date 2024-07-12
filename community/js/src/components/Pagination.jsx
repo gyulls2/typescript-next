@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 
-export default function Pagination({ pagination, setPageNum }) {
+const Pagination = ({ pagination, setPageNum }) => {
   const { page, limit, total, totalPages } = pagination;
 
   // 시작 페이지와 끝 페이지 계산
@@ -53,7 +52,7 @@ export default function Pagination({ pagination, setPageNum }) {
               (_, idx) => start + idx
             ).map((pageNum) => {
               return (
-                <botton
+                <button
                   key={pageNum}
                   onClick={() => setPageNum(pageNum)}
                   aria-current={pageNum === page ? "page" : undefined}
@@ -64,7 +63,7 @@ export default function Pagination({ pagination, setPageNum }) {
                   }`}
                 >
                   {pageNum}
-                </botton>
+                </button>
               );
             })}
 
@@ -81,4 +80,6 @@ export default function Pagination({ pagination, setPageNum }) {
       </div>
     </div>
   );
-}
+};
+
+export default Pagination;

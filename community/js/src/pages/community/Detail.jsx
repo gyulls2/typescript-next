@@ -1,37 +1,45 @@
 import Button from "@components/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import CommentList from "./CommentList";
-import useFetch from "@hooks/useFetch";
 import { useRecoilValue } from "recoil";
 import { loginAtom } from "@recoil/user/atoms";
-import useAuthMutation from "@hooks/useAuthMutation";
+import useAuthMutation from "@hooks/useAuthMutation.api";
+import fetchData from "@hooks/fetchData.api";
+import { useQuery } from "@tanstack/react-query";
+import Error from "@pages/Error";
 
-export default function Detail() {
+const Detail = () => {
   const navigate = useNavigate();
   const postId = useParams()._id;
   const type = useParams().type;
 
-  const userInfo = useRecoilValue(loginAtom).user._id;
+  const userInfo = useRecoilValue(loginAtom)?.user?._id;
 
-  const { loading, data, error, refetch } = useFetch(`/posts/${postId}`);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["post", postId],
+    queryFn: () => fetchData(`/posts/${postId}`),
+    keepPreviousData: true,
+  });
 
-  const { send } = useAuthMutation(`/posts/${postId}`, {
+  const mutation = useAuthMutation(`/posts/${postId}`, {
     method: "DELETE",
   });
 
-  const deleteHandeler = async () => {
+  const handleDelete = async () => {
     if (confirm("게시글을 삭제할까요?")) {
       try {
-        await send();
+        await mutation.mutateAsync();
         navigate(`/${type}`);
       } catch (error) {
-        console.error(error);
+        alert(error.message);
+        console.error("게시글 삭제 오류 : ", error);
       }
     }
   };
 
-  if(loading) return <p>로딩중...</p>;
-  if(error) return <p>{ error.message }</p>;
+  if (isLoading) return <p>로딩중...</p>;
+  if (error) return <Error error={error} />;
+  if (!data) return <p>데이터가 없습니다.</p>;
 
   return (
     <main className="container mx-auto mt-4 px-4">
@@ -50,7 +58,7 @@ export default function Detail() {
         </div>
 
         <div className="flex justify-end my-4">
-          <Button onClick={() => history.back()}>목록</Button>
+          <Button onClick={() => navigate(`/${type}`)}>목록</Button>
           {data?.item.user._id === userInfo && (
             <>
               <Button
@@ -59,7 +67,7 @@ export default function Detail() {
               >
                 수정
               </Button>
-              <Button bgColor="red" onClick={deleteHandeler}>
+              <Button bgColor="red" onClick={handleDelete}>
                 삭제
               </Button>
             </>
@@ -71,4 +79,6 @@ export default function Detail() {
       <CommentList postId={postId} />
     </main>
   );
-}
+};
+
+export default Detail;

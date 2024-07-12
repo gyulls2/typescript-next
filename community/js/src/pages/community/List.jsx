@@ -3,10 +3,11 @@ import Pagination from "@components/Pagination";
 import Search from "@components/Search";
 import { useNavigate, useParams } from "react-router-dom";
 import ListItem from "./ListItem";
-import useFetch from "@hooks/useFetch";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import fetchData from "@hooks/fetchData.api";
 
-export default function List() {
+const List = () => {
   const navigate = useNavigate();
   const type = useParams().type;
 
@@ -19,13 +20,12 @@ export default function List() {
     qna: "질문게시판",
   };
 
-  const { loading, data, error, refetch } = useFetch(
-    `/posts/?type=${type}${keyword}&page=${pageNum}&limit=10`
-  );
-
-  useEffect(() => {
-    refetch();
-  }, [keyword, pageNum, type]);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["posts", type, keyword, pageNum],
+    queryFn: () =>
+      fetchData(`/posts/?type=${type}${keyword}&page=${pageNum}&limit=10`),
+    keepPreviousData: true,
+  });
 
   return (
     <main className="min-w-80 p-10">
@@ -67,40 +67,46 @@ export default function List() {
             </tr>
           </thead>
           <tbody>
-            {/* 로딩 상태 표시 */}
-            {loading && (
-              <tr>
+            {/* TODO: 로딩스피너 컴포넌트 추가 */}
+            {isLoading && (
+              <tr className="text-center py-2">
                 <td colSpan="6" className="py-20 text-center">
-                  로딩중...
+                  <div className="inline-block w-6 h-6 border-4 border-orange-500 border-t-transparent border-solid rounded-full animate-spin"></div>
                 </td>
               </tr>
             )}
 
-            {/* 에러 메세지 출력 */}
-            {error && (
+            {error ? (
               <tr>
                 <td colSpan="6" className="py-20 text-center">
-                  {error}
+                  {error.message}
+                  <br />
+                  문제가 발생했습니다. 다시 시도해주세요.
                 </td>
               </tr>
+            ) : data?.item.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="py-20 text-center">
+                  데이터가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              // 본문 출력
+              data?.item.map((item, idx) => (
+                <ListItem
+                  item={item}
+                  key={item._id}
+                  idx={
+                    data.pagination.total -
+                    (data.pagination.page - 1) * data.pagination.limit -
+                    idx
+                  }
+                />
+              ))
             )}
-
-            {/* 본문 출력 */}
-            {data?.item.map((item, idx) => (
-              <ListItem
-                item={item}
-                key={item._id}
-                idx={
-                  data.pagination.total -
-                  (data.pagination.page - 1) * data.pagination.limit -
-                  idx
-                }
-              />
-            ))}
           </tbody>
         </table>
         <hr />
-
         {/* 페이지네이션 */}
         {data && (
           <Pagination pagination={data?.pagination} setPageNum={setPageNum} />
@@ -108,4 +114,6 @@ export default function List() {
       </section>
     </main>
   );
-}
+};
+
+export default List;

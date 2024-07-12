@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function ListItem({ item , idx}) {
-  const { user, _id, title, repliesCount, createdAt, views } = item;
-  const { name, profile } = user;
+export default function ListItem({ item, idx }) {
+  const { name, _id, title, repliesCount, createdAt, views } = item;
   const param = useParams().type;
 
   const navigate = useNavigate();
@@ -18,9 +17,7 @@ export default function ListItem({ item , idx}) {
       </td>
       <td className="p-2 text-center truncate">{name}</td>
       <td className="p-2 text-center hidden sm:table-cell">{views}</td>
-      <td className="p-2 text-center hidden sm:table-cell">
-        {repliesCount}
-      </td>
+      <td className="p-2 text-center hidden sm:table-cell">{repliesCount}</td>
       <td className="p-2 truncate text-center hidden sm:table-cell">
         {createdAt}
       </td>

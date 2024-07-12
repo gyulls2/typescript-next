@@ -1,23 +1,38 @@
 import Button from "@components/Button";
 import Submit from "@components/Submit";
 import { ErrorMessage } from "@hookform/error-message";
-import useMutation from "@hooks/useMutation";
-import usePostFiles from "@hooks/usePostFiles";
+import mutationData from "@hooks/mutationData.api";
+import postFiles from "@hooks/postFIles.api";
+import useLogin from "@hooks/useLogin.api";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
-export default function Signup() {
+const Signup = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const { fileSend } = usePostFiles("/files", {
-    method: "POST",
+  const navigate = useNavigate();
+
+  const { login } = useLogin();
+
+  const fileMutation = useMutation({
+    mutationFn: (data) =>
+      postFiles("/files", {
+        method: "POST",
+        body: data,
+      }),
   });
 
-  const { send } = useMutation("/users", {
-    method: "POST",
+  const signupMutation = useMutation({
+    mutationFn: (data) =>
+      mutationData("/users", {
+        method: "POST",
+        body: JSON.stringify({ ...data, type: "user" }),
+      }),
   });
 
   const onSubmit = async (data) => {
@@ -26,15 +41,15 @@ export default function Signup() {
       const formData = new FormData();
       formData.append("attach", data.profileImage[0]);
 
-      const imgURL = await fileSend({ body: formData });
+      const imgURL = await fileMutation.mutateAsync(formData);
       data.profileImage = imgURL?.item[0];
 
       //회원가입 데이터 전송
-      await send({
-        body: JSON.stringify({ ...data, type: "user" }),
-      });
+      await signupMutation.mutateAsync({ ...data, type: "user" });
 
-      history.back();
+      // 자동 로그인
+      await login({ email: data.email, password: data.password });
+      navigate("/");
     } catch (error) {
       alert(error.message);
     }
@@ -93,7 +108,7 @@ export default function Signup() {
                 required: "이메일을 입력하세요.",
                 pattern: {
                   value:
-                    /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
+                    /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
                   message: "형식에 맞지 않는 이메일입니다.",
                 },
               })}
@@ -170,4 +185,6 @@ export default function Signup() {
       </div>
     </main>
   );
-}
+};
+
+export default Signup;

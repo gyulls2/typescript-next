@@ -1,10 +1,10 @@
-export default function Button({
+const Button = ({
   children,
   type = "button",
   bgColor = "orange",
   size = "md",
   ...rest
-}) {
+}) => {
   const color = {
     gray: `bg-gray-900`,
     orange: "bg-orange-500",
@@ -12,10 +12,10 @@ export default function Button({
   };
 
   const btnSize = {
-    sm: 'py-1 px-2 text-sm',
-    md: 'py-1 px-4 text-base',
-    lg: 'py-2 px-6 text-lg',
-  }
+    sm: "py-1 px-2 text-sm",
+    md: "py-1 px-4 text-base",
+    lg: "py-2 px-6 text-lg",
+  };
 
   return (
     <button
@@ -26,4 +26,6 @@ export default function Button({
       {children}
     </button>
   );
-}
+};
+
+export default Button;

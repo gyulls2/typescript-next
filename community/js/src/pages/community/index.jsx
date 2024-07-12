@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
-export default function Community() {
+const Community = () => {
   return (
     <main className="container mx-auto mt-10 p-4">
       <section className="text-center">
@@ -47,4 +47,5 @@ export default function Community() {
       </section>
     </main>
   );
-}
+};
+export default Community;

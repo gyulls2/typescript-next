@@ -1,48 +1,24 @@
 import Submit from "@components/Submit";
-import useMutation from "@hooks/useMutation";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useRecoilState } from "recoil";
-import { loginAtom } from "@recoil/user/atoms";
 import { ErrorMessage } from "@hookform/error-message";
+import useLogin from "@hooks/useLogin.api";
 
-export default function Login() {
+const Login = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const [user, setUser] = useRecoilState(loginAtom);
+  const navigate = useNavigate();
 
-  const { send } = useMutation("/users/login", {
-    method: "POST",
-  });
+  const { login } = useLogin();
 
   const onSubmit = async (data) => {
     try {
-      const loginData = await send({
-        body: JSON.stringify(data),
-      });
-
-      // 로컬스토리지 토큰 저장
-      const token = {
-        accessToken: loginData?.item.token.accessToken,
-        refreshToken: loginData?.item.token.refreshToken,
-      };
-      localStorage.setItem("token", JSON.stringify(token));
-
-      // 리코일에 유저 정보 저장
-      setUser({
-        isLoggedIn: true,
-        user: {
-          _id: loginData?.item._id,
-          name: loginData?.item.name,
-          profileImage: loginData?.item.profileImage.path,
-        },
-      });
-
-      history.back();
+      await login(data);
+      navigate("/");
     } catch (error) {
       alert(error.message);
     }
@@ -75,7 +51,7 @@ export default function Login() {
                 required: "이메일을 입력하세요.",
                 pattern: {
                   value:
-                    /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
+                    /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
                   message: "형식에 맞지 않는 이메일입니다.",
                 },
               })}
@@ -136,4 +112,6 @@ export default function Login() {
       </div>
     </main>
   );
-}
+};
+
+export default Login;

@@ -1,13 +1,14 @@
 import Button from "@components/Button";
-import useAuthMutation from "@hooks/useAuthMutation";
-import useFetch from "@hooks/useFetch";
+import Submit from "@components/Submit";
+import useAuthMutation from "@hooks/useAuthMutation.api";
 import { loginAtom } from "@recoil/user/atoms";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
-export default function CommentItem({ comment, postId, refetch }) {
+const CommentItem = ({ comment, postId }) => {
   const { _id, user, createdAt, content } = comment;
   const { name, profile } = user;
 
@@ -15,15 +16,22 @@ export default function CommentItem({ comment, postId, refetch }) {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isDirty },
+    formState: { isDirty },
   } = useForm();
 
-  // TODO : 수정 모드일때 input으로 변경
+  const queryClient = useQueryClient();
+
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const userInfo = useRecoilValue(loginAtom).user._id;
+  const userInfo = useRecoilValue(loginAtom)?.user?._id;
 
-  const { send } = useAuthMutation(`/posts/${postId}/replies/${_id}`);
+  const deleteMutation = useAuthMutation(`/posts/${postId}/replies/${_id}`, {
+    method: "DELETE",
+  });
+
+  const editMutation = useAuthMutation(`/posts/${postId}/replies/${_id}`, {
+    method: "PATCH",
+  });
 
   // 댓글 수정 취소 시 input 초기화
   useEffect(() => {
@@ -35,10 +43,8 @@ export default function CommentItem({ comment, postId, refetch }) {
   const deleteHandeler = async () => {
     if (confirm("댓글을 삭제할까요?")) {
       try {
-        await send({
-          method: "DELETE",
-        });
-        refetch();
+        await deleteMutation.mutateAsync();
+        queryClient.invalidateQueries(["comments", postId]);
       } catch (error) {
         console.error(error);
       }
@@ -48,11 +54,9 @@ export default function CommentItem({ comment, postId, refetch }) {
   const editHandler = async (data) => {
     if (isDirty) {
       try {
-        await send({
-          method: "PATCH",
-          body: JSON.stringify(data),
-        });
-        refetch();
+        await editMutation.mutateAsync(data);
+        setIsEditMode(false);
+        queryClient.invalidateQueries(["comments", postId]);
       } catch (error) {
         console.error(error);
       }
@@ -68,8 +72,8 @@ export default function CommentItem({ comment, postId, refetch }) {
           className="w-8 mr-2 rounded-full"
           // TODO: 프로필 이미지 변경
           src={
-            comment.user.profile.path
-              ? `https://api.fesp.shop${comment.user.profile.path}`
+            profile.path
+              ? `https://api.fesp.shop${profile.path}`
               : "https://api.fesp.shop/files/00-sample/user-muzi.webp"
           }
           alt={`${name} 프로필 이미지`}
@@ -83,29 +87,31 @@ export default function CommentItem({ comment, postId, refetch }) {
       </div>
       <div className="flex justify-between my-4">
         {!isEditMode ? (
-          <pre className="whitespace-pre-wrap text-sm">{content}</pre>
+          <pre className="whitespace-pre-wrap text-sm px-4">{content}</pre>
         ) : (
-          <textarea
-            id="content"
-            rows="1"
-            className="w-full p-4 text-sm border rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white flex-1"
-            defaultValue={content}
-            name="content"
-            {...register("content", { required: true })}
-          ></textarea>
+          <form
+            id={`edit-form-${_id}`}
+            className="w-full flex-1"
+            onSubmit={handleSubmit(editHandler)}
+          >
+            <textarea
+              id="content"
+              rows="1"
+              className="w-full p-4 text-sm border rounded-lg border-gray-300 bg-gray-50 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              defaultValue={content}
+              name="commnet"
+              {...register("content", { required: true })}
+            ></textarea>
+          </form>
         )}
 
         {user._id === userInfo && (
           <div>
             {isEditMode ? (
               <>
-                <Button
-                  bgColor="orange"
-                  size="sm"
-                  onClick={handleSubmit(editHandler)}
-                >
+                <Submit form={`edit-form-${_id}`} bgColor="orange" size="sm">
                   수정
-                </Button>
+                </Submit>
                 <Button
                   bgColor="red"
                   size="sm"
@@ -133,4 +139,6 @@ export default function CommentItem({ comment, postId, refetch }) {
       </div>
     </div>
   );
-}
+};
+
+export default CommentItem;
